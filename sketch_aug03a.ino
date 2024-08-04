@@ -1,5 +1,4 @@
 #include "Arduino.h"
-#include "U8g2lib.h"
 #include "OneButton.h"
 #include "SevSeg.h" //Die vorher hinzugefügte Library laden
 SevSeg sevseg; //Ein sieben Segment Objekt initialisieren
