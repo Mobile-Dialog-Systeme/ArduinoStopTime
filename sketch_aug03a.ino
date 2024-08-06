@@ -1,13 +1,29 @@
 #include "Arduino.h"
 #include "OneButton.h"
-#include "SevSeg.h" //Die vorher hinzugefügte Library laden
-SevSeg sevseg; //Ein sieben Segment Objekt initialisieren
+
+//4-Digit Display:
+#include "TM1637TinyDisplay.h"
+
+#include "TM1637TinyDisplay6.h"       // Include 6-Digit Display Class Header
 
 
+// Define Display:
+#define CLK 2
+#define DIO 3
+// Create display object of type TM1637Display:
+//TM1637TinyDisplay display(CLK, DIO);
 
+TM1637TinyDisplay6 display(CLK, DIO); // 6-Digit Display Class
+
+// Create array that turns all segments on:
+const uint8_t data[] = {0xff, 0xff, 0xff, 0xff};
+
+// Create array that turns all segments off:
+const uint8_t blank[] = {0x00, 0x00, 0x00, 0x00};
+
+
+//Butto-Definitionen:
 int BUTTON_PIN = A0;
-
-// Name des Tasters
 OneButton NameTaster(BUTTON_PIN, true, true);
 
 // Variablen der Zeit
@@ -41,17 +57,11 @@ void setup() {
   NameTaster.setClickTicks(500);
   NameTaster.setDebounceTicks(50);
 
-  //Initieren 7-Segment Anzeige
-  byte numDigits = 4; //Hier wird die Anzahl der Ziffern angegeben
-  byte digitPins[] = {2, 3, 4, 5}; //Die Pins zu den Ziffern werden festgelegt
-  byte segmentPins[] = {6, 7, 8, 9, 10, 11, 12, 13}; //Die Pins zu den //Segmenten werden festgelegt
-  sevseg.begin(COMMON_CATHODE, numDigits, digitPins, segmentPins, false, false, true,false); //In diesem
-  //Abschnitt kann man nun entweder testen welche Art von Display man besitzt oder
-  //wenn man es schon weiß angeben ob es sich um ein COMMON_CATHODE oder
-  //COMMON_ANODE Display handelt. Das Display funktioniert nur wenn die richtige
-  //Art eingetragen ist, ansonsten werden alle Segmente gleichzeitig leuchten.
+  //Display initialisieren:
+  display.clear();
 
-  sevseg.setNumber(0,4);
+  display.setSegments(data);
+  display.setBrightness(15);
 }
 
 
@@ -72,33 +82,21 @@ void loop() {
 
   // von Sekunden Anzahl der Minuten abziehen
   IntSekunden = IntSekunden - Minute * 60;
-    
-  sevseg.setNumber(IntSekunden,2); //Hier können wir nun die gewünschte Zahl eintragen.
-  //Wir haben als Beispiel 1234 angegeben. Die Zahl hinter dem Komma steht für den
-  //Punkt hinter einer Ziffer. Hierbei ist 3 der Punkt neben der ersten Ziffer und
-  //0 wäre der Punkt ganz rechts neben der letzten Ziffer. Wenn man keinen Punkt
-  //mit angezeigt haben möcht kann man z.B. 4 angeben.
-
-  //printSerial(Sekunden);  
-  } else {
-    //sevseg.setNumber(0,4);
-    //sevseg.setNumber(0,0);  
-  }
-  sevseg.refreshDisplay(); // Dieser Teil lässt die Nummer auf dem Display
-  //erscheinen.
+  float displayTime = IntSekunden/100;
   
-  sevseg.setBrightness(90); //Hier kann die Helligkeit des Displays angepasst
-  //werden. In einem Bereich von 0-100 wobei 100 das Hellste ist. 0 bedeutet
-  //jedoch nicht dass das Display komplett dunkel ist. Für die Anzeige einer Zahl
-  //ist allein die "sevseg.refreshDisplay();" Zeile verantwortlich
+  display.showNumberDec(IntSekunden,0b01000000 ,true,4);
+  
+  //printSerial(Sekunden);  
+  } else { //Anzeige = false   
+  //
+  }
+  display.setBrightness(15);
+  
 }
 
 float zeitBerechnen(){
-  // Zeit berechnen
     float Sekunden;
-    
     VerstricheneZeit = millis() - StartZeit;
-
     Sekunden = VerstricheneZeit / 1000;
         
     return Sekunden;
@@ -113,9 +111,6 @@ void einKlick()
 
     Serial.println("Timer start");
   } else {
-    //Sekunden = zeitBerechnen();
-    //printSerial(Sekunden); 
-    //Serial.println("Timer ende");
     Anzeige = false;
   }
 
@@ -127,7 +122,8 @@ void einKlick()
 void doppelKlick()
 {
   Serial.println("00.00");
-  sevseg.setNumber(0,4);
+  display.showNumber(0);
+  Anzeige=false;
 }
 
 void printSerial(float Sekunden)
