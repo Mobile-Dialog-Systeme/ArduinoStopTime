@@ -12,6 +12,8 @@ An Arduino-based Timer to measure the race time of an autonomous robot. Version 
 ![StoppUhr-Version01_Steckplatine](https://github.com/user-attachments/assets/d9f675ae-d6be-4cb5-9f3d-af7aa697bb4d)
 
 ### Libraries
-[OneButton ](https://github.com/mathertel/OneButton)
+[OneButton](https://github.com/mathertel/OneButton)
 
 [SevSeg](https://github.com/DeanIsMe/SevSeg)
+
+[TM1637](https://github.com/avishorp/TM1637/blob/master/examples/TM1637Test/TM1637Test.ino)
